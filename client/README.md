@@ -1,3 +1,3 @@
-# CampusCloud - client
+# CampusComputeCloud - client
 
-This is the code which is downloaded by every student who wants to volunteer computation power.
+This is the code which is downloaded by every student who wants to volunteer computation power or compute something.
