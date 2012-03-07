@@ -20,11 +20,12 @@ public class Client {
     private static HttpClient client = new HttpClient();
 
     // function to do the compute use case
-    public void compute(String fileName) {
+    public static void compute() {
         GetMethod method = new GetMethod(url + "/compute");
 
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 
+        String ipAndPort;
         try {
             int statusCode = client.executeMethod(method);
 
@@ -33,9 +34,10 @@ public class Client {
             }
 
             byte[] responseBody = method.getResponseBody();
-            String ipAndPort = new String(responseBody);
+            ipAndPort = new String(responseBody);
 
-           //that string will contain ip and port
+            //that string will contain ip and port
+            //the ip is the ip of the grid node
         } catch (HttpException e) {
             System.err.println("Fatal protocol violation: " + e.getMessage());
             e.printStackTrace();
@@ -45,15 +47,29 @@ public class Client {
         } finally {
             method.releaseConnnection();
         }
+        System.out.println("Give the file name which has to be put in the grid for computation");
+
+        //input of the file name to be computed
+        BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+        String name=in.readLine();
+
+        //get the absolute path of the current working directory
+        File directory = new File (".");
+        String pwd = directory.getAbsolutePath();
+
+        //Execute the vishwa compute process
+        Process p = Runtime.getRuntime().exec("java -classpath " + pwd +"/JVishwa.jar:. "+name+" "+ipAndPort);
+
     }
 
     //function to do the join use case
-    public void share() {
+    public static void share() {
         PostMethod method = new PostMethod(url + "/share");
         method.addParameter("username", username);
 
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 
+        String ipAndPort;
         try {
             int statusCode = client.executeMethod(method);
 
@@ -62,7 +78,7 @@ public class Client {
             }
 
             byte[] responseBody = method.getResponseBody();
-            string ipAndPort = new String(responseBody);
+             ipAndPort = new String(responseBody);
 
             //that string will contain ip and port
         } catch (HttpException e) {
@@ -74,22 +90,29 @@ public class Client {
         } finally {
             method.releaseConnnection();
         }
+
+        //Execute the vishwa share process
+        Process p = Runtime.getRuntime().exec("java -jar JVishwa.jar "+ipAndPort);
     }
 
     public static void main(String args[]) {
+        int ch;
         System.out.println("Vishwa Based Campus Compute Cloud");
         System.out.println("1. Login");
         System.out.println("2. Join the Grid");
         System.out.println("3. Avail the compute facility");
         System.out.println("4. Quit");
-        System.out.printf("Enter your choice: ");
+        System.out.println("Enter your choice: ");
+
+        BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+        String name=in.readLine();
+        ch = Integer.parseInt(name);
 
         if (ch == 1) {
             //Get input and set username
         } else if( ch == 2){
             share();
         } else if(ch == 3){
-            System.out.println("Give the file name which has to be put in the grid for computation");
             compute();
         } else {
             System.exit(0);
