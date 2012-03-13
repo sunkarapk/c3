@@ -1,11 +1,12 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import org.apache.commons.http.*;
-import org.apache.commons.http.entity.*;
-import org.apache.commons.http.impl.*;
-import org.apache.commons.http.params.*;
-import org.apache.commons.http.protocol.*;
+import org.apache.http.*;
+import org.apache.http.entity.*;
+import org.apache.http.impl.*;
+import org.apache.http.params.*;
+import org.apache.http.protocol.*;
+import org.apache.http.util.*;
 
 public class Server {
 
@@ -16,32 +17,30 @@ public class Server {
     }
 
     public static class ApiHandler implements HttpRequestHandler {
-        public ApiHandler(void) {
+        public ApiHandler() {
             super();
         }
 
         public void handle(final HttpRequest req, final HttpResponse res, final HttpContext con) throws HttpException, IOException {
-            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
+            String method = req.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             if (!method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
-            String target = request.getRequestLine().getUri();
+            String target = req.getRequestLine().getUri();
 
-            if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                byte[] entityContent = EntityUtils.toByteArray(entity);
+            if (req instanceof HttpEntityEnclosingRequest) {
+                HttpEntity entity = ((HttpEntityEnclosingRequest) req).getEntity();
+                String entityContent = EntityUtils.toString(entity);
             }
 
-            switch (target) {
-
-                case "/share":
-                    break;
-
-                case "/compute":
-                    break;
-
-                default:
-                    break;
+            if (target == "/share") {
+                res.setStatusCode(HttpStatus.SC_OK);
+                res.setEntity(new StringEntity("10.6.9.199", "UTF-8"));
+            } else if (target == "/compute") {
+                res.setStatusCode(HttpStatus.SC_OK);
+                res.setEntity(new StringEntity("10.6.15.151", "UTF-8"));
+            } else {
+                res.setStatusCode(HttpStatus.SC_NOT_FOUND);
             }
         }
     }
