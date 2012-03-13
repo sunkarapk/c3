@@ -12,20 +12,19 @@ public class Client {
     private static String username = null;
 
     public static String zonalServerIp = null;
-    public static int zonalServerPort = 3333;
-
     public static String gridNodeIp = null;
-    public static int gridNodePort = 4444;
+
+    public static String connIp = null;
 
     private static HttpClient client = new HttpClient();
 
     // function to do the compute use case
     public static void compute() {
-        GetMethod method = new GetMethod(url + "/compute");
+        PostMethod method = new PostMethod(url + "/compute");
+        method.addParameter("username", username);
 
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 
-        String ipAndPort;
         try {
             int statusCode = client.executeMethod(method);
 
@@ -34,10 +33,7 @@ public class Client {
             }
 
             byte[] responseBody = method.getResponseBody();
-            ipAndPort = new String(responseBody);
-
-            //that string will contain ip and port
-            //the ip is the ip of the grid node
+            connIp = new String(responseBody);
         } catch (HttpException e) {
             System.err.println("Fatal protocol violation: " + e.getMessage());
             e.printStackTrace();
@@ -58,7 +54,7 @@ public class Client {
         String pwd = directory.getAbsolutePath();
 
         //Execute the vishwa compute process
-        Process p = Runtime.getRuntime().exec("java -classpath " + pwd +"/JVishwa.jar:. "+name+" "+ipAndPort);
+        Process p = Runtime.getRuntime().exec("java -classpath " + pwd + "/JVishwa.jar:. " + name + " " + connIp);
 
     }
 
@@ -69,7 +65,6 @@ public class Client {
 
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 
-        String ipAndPort;
         try {
             int statusCode = client.executeMethod(method);
 
@@ -78,9 +73,7 @@ public class Client {
             }
 
             byte[] responseBody = method.getResponseBody();
-             ipAndPort = new String(responseBody);
-
-            //that string will contain ip and port
+            connIp = new String(responseBody);
         } catch (HttpException e) {
             System.err.println("Fatal protocol violation: " + e.getMessage());
             e.printStackTrace();
@@ -92,7 +85,7 @@ public class Client {
         }
 
         //Execute the vishwa share process
-        Process p = Runtime.getRuntime().exec("java -jar JVishwa.jar "+ipAndPort);
+        Process p = Runtime.getRuntime().exec("java -jar JVishwa.jar " + connIp);
     }
 
     public static void main(String args[]) {
@@ -110,9 +103,9 @@ public class Client {
 
         if (ch == 1) {
             //Get input and set username
-        } else if( ch == 2){
+        } else if( ch == 2) {
             share();
-        } else if(ch == 3){
+        } else if(ch == 3) {
             compute();
         } else {
             System.exit(0);
