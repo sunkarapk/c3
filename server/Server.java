@@ -23,16 +23,16 @@ public class Server {
 
         public void handle(final HttpRequest req, final HttpResponse res, final HttpContext con) throws HttpException, IOException {
             String method = req.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
+            String target = req.getRequestLine().getUri();
+
+            String username = null;
+
             if (!method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
-            String target = req.getRequestLine().getUri();
-
-            String entityContent = null;
 
             if (req instanceof HttpEntityEnclosingRequest) {
-                HttpEntity entity = ((HttpEntityEnclosingRequest) req).getEntity();
-                entityContent = EntityUtils.toString(entity);
+                username = EntityUtils.toString(((HttpEntityEnclosingRequest) req).getEntity());
             }
 
             if (target.equals("/share")) {

@@ -1,5 +1,4 @@
 import java.io.*;
-import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.HttpPost;
@@ -10,10 +9,6 @@ public class Client {
     private static String url = "http://10.6.9.199/";
 
     private static String username = null;
-
-    public static String zonalServerIp = null;
-    public static String gridNodeIp = null;
-
     public static String connIp = null;
 
     private static HttpClient client = new DefaultHttpClient();
@@ -22,10 +17,7 @@ public class Client {
     public static void compute() throws Exception {
         HttpPost method = new HttpPost(url + "/compute");
 
-        HttpEntity reqEntity = new StringEntity(username, "UTF-8");
-        method.setEntity(reqEntity);
-
-        String connIp = null;
+        method.setEntity(new StringEntity(username, "UTF-8"));
 
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
@@ -56,10 +48,7 @@ public class Client {
     public static void share() throws Exception {
         HttpPost method = new HttpPost(url + "/share");
 
-        HttpEntity reqEntity = new StringEntity(username, "UTF-8");
-        method.setEntity(reqEntity);
-
-        String connIp = null;
+        method.setEntity(new StringEntity(username, "UTF-8"));
 
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
@@ -72,31 +61,52 @@ public class Client {
         }
 
         //Execute the vishwa share process
-        Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
+            Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
     }
 
     public static void main(String args[]) throws Exception {
         int choice;
 
-        System.out.println("Vishwa Based Campus Compute Cloud");
-        System.out.println("1. Login");
-        System.out.println("2. Join the Grid");
-        System.out.println("3. Avail the compute facility");
-        System.out.println("4. Quit");
-        System.out.printf("Enter your choice: ");
-
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        choice = Integer.parseInt(in.readLine());
 
-        if (choice == 1) {
-            System.out.printf("Enter your username: ");
-            username = in.readline();
-        } else if(choice == 2) {
-            share();
-        } else if(choice == 3) {
-            compute();
-        } else {
-            System.exit(0);
+        System.out.println("Vishwa Based Campus Compute Cloud");
+
+        while (true) {
+            System.out.println("");
+
+            if (username != null) {
+                System.out.println("1. Logout");
+            } else {
+                System.out.println("1. Login");
+            }
+
+            System.out.println("2. Join the Grid");
+            System.out.println("3. Avail the compute facility");
+
+            System.out.println("4. Quit");
+            System.out.printf("Enter your choice: ");
+
+            try {
+                choice = Integer.parseInt(in.readLine());
+            } catch (NumberFormatException ex) {
+                System.out.println("WARNING: Enter a number only!");
+                continue;
+            }
+
+            if (choice == 1) {
+                if (username != null) {
+                    username = null;
+                } else {
+                    System.out.printf("Enter your username: ");
+                    username = in.readLine();
+                }
+            } else if(choice == 2) {
+                share();
+            } else if(choice == 3) {
+                compute();
+            } else {
+                System.exit(0);
+            }
         }
     }
 }
