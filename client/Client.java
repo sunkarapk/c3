@@ -1,11 +1,8 @@
-import java.net.*;
 import java.io.*;
-import java.util.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.*;
 import org.apache.http.impl.client.*;
 
 public class Client {
@@ -28,27 +25,30 @@ public class Client {
         HttpEntity reqEntity = new StringEntity(username, "UTF-8");
         method.setEntity(reqEntity);
 
+        String connIp = null;
+
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String connIp = client.execute(method, responseHandler);
+            connIp = client.execute(method, responseHandler);
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
         } finally {
             client.getConnectionManager().shutdown();
         }
+
         System.out.println("Give the file name which has to be put in the grid for computation");
 
         //input of the file name to be computed
-        BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
-        String name=in.readLine();
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String name = in.readLine();
 
         //get the absolute path of the current working directory
         File directory = new File (".");
         String pwd = directory.getAbsolutePath();
 
         //Execute the vishwa compute process
-        Process p = Runtime.getRuntime().exec("java -classpath " + pwd + "/JVishwa.jar:. " + name + " " + connIp);
+        Process p = Runtime.getRuntime().exec("java -classpath " + pwd + "/vishwa/JVishwa.jar:. " + name + " " + connIp);
 
     }
 
@@ -59,9 +59,11 @@ public class Client {
         HttpEntity reqEntity = new StringEntity(username, "UTF-8");
         method.setEntity(reqEntity);
 
+        String connIp = null;
+
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String connIp = client.execute(method, responseHandler);
+            connIp = client.execute(method, responseHandler);
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
@@ -70,11 +72,11 @@ public class Client {
         }
 
         //Execute the vishwa share process
-        Process p = Runtime.getRuntime().exec("java -jar JVishwa.jar " + connIp);
+        Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
     }
 
     public static void main(String args[]) throws Exception {
-        int ch;
+        int choice;
 
         System.out.println("Vishwa Based Campus Compute Cloud");
         System.out.println("1. Login");
@@ -84,14 +86,13 @@ public class Client {
         System.out.printf("Enter your choice: ");
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String name = in.readLine();
-        ch = Integer.parseInt(name);
+        choice = Integer.parseInt(in.readLine());
 
-        if (ch == 1) {
-            //Get input and set username
-        } else if( ch == 2) {
+        if (choice == 1) {
+            username = in.readline();
+        } else if(choice == 2) {
             share();
-        } else if(ch == 3) {
+        } else if(choice == 3) {
             compute();
         } else {
             System.exit(0);

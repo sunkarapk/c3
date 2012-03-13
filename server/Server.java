@@ -28,9 +28,11 @@ public class Server {
             }
             String target = req.getRequestLine().getUri();
 
+            String entityContent = null;
+
             if (req instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest) req).getEntity();
-                String entityContent = EntityUtils.toString(entity);
+                entityContent = EntityUtils.toString(entity);
             }
 
             if (target == "/share") {
