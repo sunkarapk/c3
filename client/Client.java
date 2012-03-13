@@ -89,6 +89,7 @@ public class Client {
         choice = Integer.parseInt(in.readLine());
 
         if (choice == 1) {
+            System.out.printf("Enter your username: ");
             username = in.readline();
         } else if(choice == 2) {
             share();

@@ -35,10 +35,10 @@ public class Server {
                 entityContent = EntityUtils.toString(entity);
             }
 
-            if (target == "/share") {
+            if (target.equals("/share")) {
                 res.setStatusCode(HttpStatus.SC_OK);
                 res.setEntity(new StringEntity("10.6.9.199", "UTF-8"));
-            } else if (target == "/compute") {
+            } else if (target.equals("/compute")) {
                 res.setStatusCode(HttpStatus.SC_OK);
                 res.setEntity(new StringEntity("10.6.15.151", "UTF-8"));
             } else {
