@@ -7,10 +7,31 @@ import org.apache.http.impl.*;
 import org.apache.http.params.*;
 import org.apache.http.protocol.*;
 import org.apache.http.util.*;
+import java.sql.*;
 
 public class Server {
+    //JDBC Driver and database URL
+    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String DB_URL = "jdbc:mysql://localhost/";
+    private static final String DB_URL_TABLE = "jdbc:mysql://localhost/vishwa";
+    //  Database credentials
+    private static final String USER = "root";
+    private static final String PASS = "vishwa";
+
+    public static Connection conn = null;
+    public static Statement stmt = null;
 
     public static void main(String[] args) throws Exception {
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("Connecting to a selected database...");
+            conn = DriverManager.getConnection(DB_URL_TABLE, USER, PASS);
+        }catch(SQLException se){
+                se.printStackTrace();
+        }catch(Exception e){
+                e.printStackTrace();
+        }
+
         Thread t = new RequestListenerThread(8080);
         t.setDaemon(false);
         t.start();
