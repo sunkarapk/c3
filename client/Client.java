@@ -1,3 +1,4 @@
+import java.net.*;
 import java.io.*;
 import java.util.*;
 import org.apache.http.entity.StringEntity;
@@ -58,9 +59,9 @@ public class Client {
         long end = date.getTime();
         long durationInt = end - start;
 
-        String duration = String.valueof(durationInt);
-        HttpPost method = new HttpPost(url + "/computeAck");
-        method.setEntity(new StringEntity(duration, "UTF-8"));
+        String duration = String.valueOf(durationInt);
+        method = new HttpPost(url + "/computeAck");
+        method.setEntity(new StringEntity(username + ";" + duration, "UTF-8"));
         try {
             client.execute(method);
         } catch (IOException e) {
@@ -95,13 +96,13 @@ public class Client {
         HttpPost method = new HttpPost(url + "/share");
         String ipAddress = null;
 
-        Enumeration e = NetworkInterface.getNetworkInterfaces();
-        while(e.hasMoreElements()) {
-            NetworkInterface ni = (NetworkInterface) e.nextElement();
+        Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+        while(en.hasMoreElements()) {
+            NetworkInterface ni = (NetworkInterface) en.nextElement();
             if(ni.getName().equals("eth0")) {
-                Enumeration e2 = ni.getInetAddresses();
-                while (e2.hasMoreElements()) {
-                    InetAddress ip = (InetAddress) e2.nextElement();
+                Enumeration<InetAddress> en2 = ni.getInetAddresses();
+                while (en2.hasMoreElements()) {
+                    InetAddress ip = (InetAddress) en2.nextElement();
                     if(ip instanceof Inet4Address) {
                         ipAddress = ip.getHostAddress();
                         break;
@@ -132,17 +133,19 @@ public class Client {
         String ch = "alive";
         System.out.println("Type kill to unjoin from the grid");
 
-        while(ch == "alive"){
+        while(ch != "kill"){
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             ch = in.readLine();
         }
 
+        p.destroy();
+
         long end = date.getTime();
         long durationInt = end - start;
 
-        String duration = String.valueof(durationInt);
-        HttpPost method = new HttpPost(url + "/shareAck");
-        method.setEntity(new StringEntity(duration, "UTF-8"));
+        String duration = String.valueOf(durationInt);
+        method = new HttpPost(url + "/shareAck");
+        method.setEntity(new StringEntity(username + ";" + duration, "UTF-8"));
         try {
             client.execute(method);
         } catch (IOException e) {

@@ -57,10 +57,10 @@ public class Server {
             if (target.equals("/login")) {
                 int valid = 0;
                 try {
-                    ResultSet tmp = stmt.executeQuery("SELECT COUNT(*) as rowcount FROM users where username='" + details[0] + "' and password='" + details[0] + "'");
-                    tmp.next();
-                    valid = tmp.getInt("rowcount");
-                    tmp.close();
+                    ResultSet r = stmt.executeQuery("SELECT COUNT(*) as rowcount FROM users where username='" + details[0] + "' and password='" + details[1] + "'");
+                    r.next();
+                    valid = r.getInt("rowcount");
+                    r.close();
                 } catch (SQLException se) {
                     se.printStackTrace();
                 }
@@ -73,16 +73,51 @@ public class Server {
                 }
             } else if (target.equals("/share")) {
                 try {
-                    stmt.executeUpdate("UPDATE users set ip='" + details[1] + "' where username='" + details[0] + "'");
+                    stmt.executeUpdate("UPDATE users set on='1',ip='" + details[1] + "' where username='" + details[0] + "'");
                 } catch (SQLException se) {
                     se.printStackTrace();
                 }
 
                 res.setStatusCode(HttpStatus.SC_OK);
                 res.setEntity(new StringEntity("10.6.9.199", "UTF-8"));
-            } else if (target.equals("/compute")) {
+            } else if (target.equals("/shareAck")) {
+                try {
+                    ResultSet r = stmt.executeQuery("SELECT * FROM users where username='" + details[0] + "'");
+                    r.next();
+                    r.updateInt("on", 0);
+                    r.updateLong("credits", Credits.getAfterAdding(r.getLong("credits"), Long.parseLong(details[1])));
+                    r.updateRow();
+                    r.close();
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
+
                 res.setStatusCode(HttpStatus.SC_OK);
-                res.setEntity(new StringEntity("10.6.15.151", "UTF-8"));
+            } else if (target.equals("/compute")) {
+                String ip = null;
+                try {
+                    ResultSet r = stmt.executeQuery("SELECT ip FROM users where on='1'");
+                    r.last();
+                    r.absolute((int) (Math.random()*r.getRow()));
+                    ip = r.getString("ip");
+                    r.close();
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
+
+                res.setStatusCode(HttpStatus.SC_OK);
+                res.setEntity(new StringEntity(ip, "UTF-8"));
+            } else if (target.equals("/computeAck")) {
+                try {
+                    ResultSet r = stmt.executeQuery("SELECT * FROM users where username='" + details[0] + "'");
+                    r.next();
+                    r.updateLong("credits", Credits.getAfterBurning(r.getLong("credits"), Long.parseLong(details[1])));
+                    r.updateRow();
+                    r.close();
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
+                res.setStatusCode(HttpStatus.SC_OK);
             } else {
                 res.setStatusCode(HttpStatus.SC_NOT_FOUND);
             }
