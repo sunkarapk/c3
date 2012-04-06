@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.HttpPost;
@@ -39,9 +40,26 @@ public class Client {
         File directory = new File (".");
         String pwd = directory.getAbsolutePath();
 
+        //get present time
+        Date date = new Date();
+        long start = date.getTime();
+
         //Execute the vishwa compute process
         Process p = Runtime.getRuntime().exec("java -classpath " + pwd + "/vishwa/JVishwa.jar:. " + name + " " + connIp);
 
+        // wait till the compute process is completed
+        //check for the status code (0 for successful termination)
+        int status = p.waitFor();
+
+        if(status ==0){
+            System.out.println("Compute operation successful. Check the directory for results");
+        }
+
+        long end = date.getTime();
+        long duration = end - start;
+
+        //send the duration to the server (http)
+        //TODO
     }
 
     //function to do the join use case
@@ -60,8 +78,27 @@ public class Client {
             client.getConnectionManager().shutdown();
         }
 
+       //get present time
+       Date date = new Date();
+       long start = date.getTime();
+
         //Execute the vishwa share process
-            Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
+        Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
+
+        String ch = "alive";
+
+        System.out.println("Type kill to unjoin from the grid");
+
+        while(ch == "alive"){
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            ch = in.readLine();
+        }
+
+        long end = date.getTime();
+        long duration = end - start;
+
+        //send the duration of the share operation to the server
+        //TODO
     }
 
     public static void main(String args[]) throws Exception {
