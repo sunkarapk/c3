@@ -62,6 +62,25 @@ public class Client {
         //TODO
     }
 
+    //function to check login
+    public static boolean login(String pass) throws Exception {
+        HttpPost method = new HttpPost(url + "/login");
+
+        method.setEntity(new StringEntity(username + ';' + pass, "UTF-8"));
+
+        try {
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            connIp = client.execute(method, responseHandler);
+        } catch (IOException e) {
+            System.err.println("Fatal transport error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            client.getConnectionManager().shutdown();
+        }
+
+        return connIp.equals("true");
+    }
+
     //function to do the join use case
     public static void share() throws Exception {
         HttpPost method = new HttpPost(url + "/share");
@@ -78,9 +97,9 @@ public class Client {
             client.getConnectionManager().shutdown();
         }
 
-       //get present time
-       Date date = new Date();
-       long start = date.getTime();
+        //get present time
+        Date date = new Date();
+        long start = date.getTime();
 
         //Execute the vishwa share process
         Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
@@ -136,6 +155,13 @@ public class Client {
                 } else {
                     System.out.printf("Enter your username: ");
                     username = in.readLine();
+                    System.out.printf("Enter your password: ");
+                    if (login(in.readLine())) {
+                        System.out.println("Successfully logged in!");
+                    } else {
+                        System.out.println("Unable to login. Please check your credentials.");
+                        username = null;
+                    }
                 }
             } else if(choice == 2) {
                 share();

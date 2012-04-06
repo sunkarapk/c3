@@ -10,11 +10,8 @@ import org.apache.http.util.*;
 import java.sql.*;
 
 public class Server {
-    //JDBC Driver and database URL
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost/";
-    private static final String DB_URL_TABLE = "jdbc:mysql://localhost/vishwa";
-    //  Database credentials
+    //Database credentials
+    private static final String DB_URL = "jdbc:mysql://localhost/vishwa";
     private static final String USER = "root";
     private static final String PASS = "vishwa";
 
@@ -25,7 +22,7 @@ public class Server {
         try{
             Class.forName("com.mysql.jdbc.Driver");
             System.out.println("Connecting to a selected database...");
-            conn = DriverManager.getConnection(DB_URL_TABLE, USER, PASS);
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
         }catch(SQLException se){
                 se.printStackTrace();
         }catch(Exception e){
@@ -46,17 +43,41 @@ public class Server {
             String method = req.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             String target = req.getRequestLine().getUri();
 
-            String username = null;
+            String[] details = null;
 
             if (!method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
 
             if (req instanceof HttpEntityEnclosingRequest) {
-                username = EntityUtils.toString(((HttpEntityEnclosingRequest) req).getEntity());
+                String tmp = EntityUtils.toString(((HttpEntityEnclosingRequest) req).getEntity());
+                details = tmp.split(";");
             }
 
-            if (target.equals("/share")) {
+            if (target.equals("/login")) {
+                int valid = 0;
+                try {
+                    ResultSet tmp = stmt.executeQuery("SELECT COUNT(*) as rowcount FROM users where username='" + details[0] + "' and password='" + details[0] + "'");
+                    tmp.next();
+                    valid = tmp.getInt("rowcount");
+                    tmp.close();
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
+
+                res.setStatusCode(HttpStatus.SC_OK);
+                if (valid == 1) {
+                    res.setEntity(new StringEntity("true", "UTF-8"));
+                } else {
+                    res.setEntity(new StringEntity("false", "UTF-8"));
+                }
+            } else if (target.equals("/share")) {
+                try {
+                    stmt.executeUpdate("UPDATE users set ip='" + details[1] + "' where username='" + details[0] + "'");
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
+
                 res.setStatusCode(HttpStatus.SC_OK);
                 res.setEntity(new StringEntity("10.6.9.199", "UTF-8"));
             } else if (target.equals("/compute")) {
