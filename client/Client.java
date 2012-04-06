@@ -56,10 +56,19 @@ public class Client {
         }
 
         long end = date.getTime();
-        long duration = end - start;
+        long durationInt = end - start;
 
-        //send the duration to the server (http)
-        //TODO
+        String duration = String.valueof(durationInt);
+        HttpPost method = new HttpPost(url + "/computeAck");
+        method.setEntity(new StringEntity(duration, "UTF-8"));
+        try {
+            client.execute(method);
+        } catch (IOException e) {
+            System.err.println("Fatal transport error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            client.getConnectionManager().shutdown();
+        }
     }
 
     //function to check login
@@ -84,9 +93,25 @@ public class Client {
     //function to do the join use case
     public static void share() throws Exception {
         HttpPost method = new HttpPost(url + "/share");
+        String ipAddress = null;
 
-        method.setEntity(new StringEntity(username, "UTF-8"));
+        Enumeration e = NetworkInterface.getNetworkInterfaces();
+        while(e.hasMoreElements()) {
+            NetworkInterface ni = (NetworkInterface) e.nextElement();
+            if(ni.getName().equals("eth0")) {
+                Enumeration e2 = ni.getInetAddresses();
+                while (e2.hasMoreElements()) {
+                    InetAddress ip = (InetAddress) e2.nextElement();
+                    if(ip instanceof Inet4Address) {
+                        ipAddress = ip.getHostAddress();
+                        break;
+                    }
+                }
+                break;
+            }
+        }
 
+        method.setEntity(new StringEntity(username + ';' + ipAddress, "UTF-8"));
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             connIp = client.execute(method, responseHandler);
@@ -105,7 +130,6 @@ public class Client {
         Process p = Runtime.getRuntime().exec("java -jar vishwa/JVishwa.jar " + connIp);
 
         String ch = "alive";
-
         System.out.println("Type kill to unjoin from the grid");
 
         while(ch == "alive"){
@@ -114,10 +138,19 @@ public class Client {
         }
 
         long end = date.getTime();
-        long duration = end - start;
+        long durationInt = end - start;
 
-        //send the duration of the share operation to the server
-        //TODO
+        String duration = String.valueof(durationInt);
+        HttpPost method = new HttpPost(url + "/shareAck");
+        method.setEntity(new StringEntity(duration, "UTF-8"));
+        try {
+            client.execute(method);
+        } catch (IOException e) {
+            System.err.println("Fatal transport error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            client.getConnectionManager().shutdown();
+        }
     }
 
     public static void main(String args[]) throws Exception {
