@@ -23,6 +23,7 @@ public class Server {
             Class.forName("com.mysql.jdbc.Driver");
             System.out.println("Connecting to a selected database...");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         }catch(SQLException se){
                 se.printStackTrace();
         }catch(Exception e){
@@ -73,7 +74,12 @@ public class Server {
                 }
             } else if (target.equals("/share")) {
                 try {
-                    stmt.executeUpdate("UPDATE users set on='1',ip='" + details[1] + "' where username='" + details[0] + "'");
+                    ResultSet r = stmt.executeQuery("SELECT * FROM users where username='" + details[0] + "'");
+                    r.next();
+                    r.updateInt("on", 1);
+                    r.updateString("ip", details[1]);
+                    r.updateRow();
+                    r.close();
                 } catch (SQLException se) {
                     se.printStackTrace();
                 }

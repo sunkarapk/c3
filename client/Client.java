@@ -8,7 +8,7 @@ import org.apache.http.impl.client.*;
 
 public class Client {
 
-    private static String url = "http://10.6.9.199/";
+    private static String url = "http://10.6.9.199:8080/";
 
     private static String username = null;
     public static String connIp = null;
@@ -27,8 +27,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            client.getConnectionManager().shutdown();
         }
 
         System.out.println("Give the file name which has to be put in the grid for computation");
@@ -67,8 +65,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            client.getConnectionManager().shutdown();
         }
     }
 
@@ -84,8 +80,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            client.getConnectionManager().shutdown();
         }
 
         return connIp.equals("true");
@@ -119,8 +113,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            client.getConnectionManager().shutdown();
         }
 
         //get present time
@@ -133,7 +125,7 @@ public class Client {
         String ch = "alive";
         System.out.println("Type kill to unjoin from the grid");
 
-        while(ch != "kill"){
+        while(!ch.equals("kill")){
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             ch = in.readLine();
         }
@@ -151,8 +143,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Fatal transport error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            client.getConnectionManager().shutdown();
         }
     }
 
