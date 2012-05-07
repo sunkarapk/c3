@@ -76,7 +76,7 @@ public class Server {
                 try {
                     ResultSet r = stmt.executeQuery("SELECT * FROM users where username='" + details[0] + "'");
                     r.next();
-                    r.updateInt("on", 1);
+                    r.updateInt("online", 1);
                     r.updateString("ip", details[1]);
                     r.updateRow();
                     r.close();
@@ -90,7 +90,7 @@ public class Server {
                 try {
                     ResultSet r = stmt.executeQuery("SELECT * FROM users where username='" + details[0] + "'");
                     r.next();
-                    r.updateInt("on", 0);
+                    r.updateInt("online", 0);
                     r.updateLong("credits", Credits.getAfterAdding(r.getLong("credits"), Long.parseLong(details[1])));
                     r.updateRow();
                     r.close();
@@ -102,9 +102,9 @@ public class Server {
             } else if (target.equals("/compute")) {
                 String ip = null;
                 try {
-                    ResultSet r = stmt.executeQuery("SELECT ip FROM users where on='1'");
+                    ResultSet r = stmt.executeQuery("SELECT ip FROM users where online='1'");
                     r.last();
-                    r.absolute((int) (Math.random()*r.getRow()));
+                    r.absolute((int) (Math.random()*r.getRow())+1);
                     ip = r.getString("ip");
                     r.close();
                 } catch (SQLException se) {

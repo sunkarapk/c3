@@ -15,6 +15,8 @@ public class Client {
 
     private static HttpClient client = new DefaultHttpClient();
 
+    private static Date date = null;
+
     // function to do the compute use case
     public static void compute() throws Exception {
         HttpPost method = new HttpPost(url + "/compute");
@@ -40,11 +42,14 @@ public class Client {
         String pwd = directory.getAbsolutePath();
 
         //get present time
-        Date date = new Date();
+        date = new Date();
         long start = date.getTime();
 
+        String cmd = "java -classpath " + pwd + "/vishwa/JVishwa.jar:. " + name + " " + connIp;
+        System.out.println(cmd);
+
         //Execute the vishwa compute process
-        Process p = Runtime.getRuntime().exec("java -classpath " + pwd + "/vishwa/JVishwa.jar:. " + name + " " + connIp);
+        Process p = Runtime.getRuntime().exec(cmd);
 
         // wait till the compute process is completed
         //check for the status code (0 for successful termination)
@@ -54,6 +59,7 @@ public class Client {
             System.out.println("Compute operation successful. Check the directory for results");
         }
 
+        date = new Date();
         long end = date.getTime();
         long durationInt = end - start;
 
@@ -116,7 +122,7 @@ public class Client {
         }
 
         //get present time
-        Date date = new Date();
+        date = new Date();
         long start = date.getTime();
 
         //Execute the vishwa share process
@@ -132,6 +138,7 @@ public class Client {
 
         p.destroy();
 
+        date = new Date();
         long end = date.getTime();
         long durationInt = end - start;
 
